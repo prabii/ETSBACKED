@@ -259,6 +259,20 @@ const checkIn = async (req, res) => {
   }
 };
 
+// DELETE /api/attendance/:id  (admin/hr)
+const deleteAttendance = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const record = await AttendanceRecord.findByIdAndDelete(id);
+    if (!record) {
+      return res.status(404).json({ success: false, message: "Record not found." });
+    }
+    res.status(200).json({ success: true, message: "Attendance record deleted." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error." });
+  }
+};
+
 // PUT /api/attendance/:id/checkout
 const checkOut = async (req, res) => {
   try {
@@ -289,4 +303,4 @@ const checkOut = async (req, res) => {
   }
 };
 
-module.exports = { getAttendance, getTodayAttendance, getEmployeeAttendance, checkIn, checkOut };
+module.exports = { getAttendance, getTodayAttendance, getEmployeeAttendance, checkIn, checkOut, deleteAttendance };

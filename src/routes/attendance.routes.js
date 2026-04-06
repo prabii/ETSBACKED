@@ -6,6 +6,7 @@ const {
   getEmployeeAttendance,
   checkIn,
   checkOut,
+  deleteAttendance,
 } = require("../controllers/attendance.controller");
 const { verifyToken } = require("../middleware/auth");
 const { requireAdminOrHR, requireEmployee } = require("../middleware/roleGuard");
@@ -24,5 +25,8 @@ router.post("/checkin", verifyToken, requireEmployee, checkIn);
 
 // PUT /api/attendance/:id/checkout  (employee)
 router.put("/:id/checkout", verifyToken, requireEmployee, checkOut);
+
+// DELETE /api/attendance/:id  (admin/hr)
+router.delete("/:id", verifyToken, requireAdminOrHR, deleteAttendance);
 
 module.exports = router;
