@@ -61,7 +61,8 @@ const getAttendance = async (req, res) => {
 // GET /api/attendance/today
 const getTodayAttendance = async (req, res) => {
   try {
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    const _now = new Date();
+    const today = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, "0")}-${String(_now.getDate()).padStart(2, "0")}`;
 
     const [records, activeEmployees] = await Promise.all([
       AttendanceRecord.find({ date: today }),
@@ -166,8 +167,8 @@ const checkIn = async (req, res) => {
       return res.status(400).json({ success: false, message: "Employee not found or inactive." });
     }
 
-    const today = new Date().toISOString().split("T")[0];
     const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     const checkInTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 
     // Check if already checked in today
