@@ -16,6 +16,14 @@ function getDistance(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// Helper: get current date and time in IST (Asia/Kolkata, UTC+5:30)
+function getISTNow() {
+  const now = new Date();
+  const date = now.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }); // YYYY-MM-DD
+  const time = now.toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: false });
+  return { date, time };
+}
+
 // Helper: determine attendance status based on time
 function getAttendanceStatus(checkInTime, workStartTime, lateAfterMinutes) {
   const [startHour, startMin] = workStartTime.split(":").map(Number);
@@ -61,8 +69,7 @@ const getAttendance = async (req, res) => {
 // GET /api/attendance/today
 const getTodayAttendance = async (req, res) => {
   try {
-    const _now = new Date();
-    const today = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, "0")}-${String(_now.getDate()).padStart(2, "0")}`;
+    const { date: today } = getISTNow();
 
     const [records, activeEmployees] = await Promise.all([
       AttendanceRecord.find({ date: today }),
@@ -167,9 +174,7 @@ const checkIn = async (req, res) => {
       return res.status(400).json({ success: false, message: "Employee not found or inactive." });
     }
 
-    const now = new Date();
-    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-    const checkInTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+    const { date: today, time: checkInTime } = getISTNow();
 
     // Check if already checked in today
     const existing = await AttendanceRecord.findOne({
@@ -278,8 +283,7 @@ const deleteAttendance = async (req, res) => {
 const checkOut = async (req, res) => {
   try {
     const { id } = req.params;
-    const now = new Date();
-    const checkOutTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+    const { time: checkOutTime } = getISTNow();
 
     const record = await AttendanceRecord.findById(id);
     if (!record) {
